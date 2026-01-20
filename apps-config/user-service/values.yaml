@@ -1,14 +1,14 @@
-# SỬA LẠI: Dùng đúng Image của Bitnami để khớp với Chart
+# SỬA LẠI ĐOẠN NÀY
 image:
   registry: docker.io
-  repository: bitnami/nginx
+  repository: bitnami/nginx  # <--- Dùng ảnh của Bitnami, đừng dùng 'nginx' thường
   tag: "1.25"
 
-# Cấu hình Service
+# Giữ nguyên cấu hình port này để khớp với Chart
 service:
   type: ClusterIP
   port: 8080
 
-# (Tùy chọn) Tắt bớt mấy cái lằng nhằng của Bitnami để chạy nhẹ hơn
+# Tắt bớt tính năng thừa
 auth:
   enabled: false
