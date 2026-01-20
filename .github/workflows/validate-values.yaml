@@ -1,0 +1,65 @@
+name: Validate Helm Values
+# Kích hoạt khi có ai đó Push code hoặc tạo Pull Request
+on:
+  push:
+    paths:
+      - 'apps-config/**' # Chỉ chạy khi sửa thư mục config (tiết kiệm tài nguyên)
+  pull_request:
+    paths:
+      - 'apps-config/**'
+
+jobs:
+  lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Tải code từ Git về máy ảo CI
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Cài đặt Helm lên máy ảo CI
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.11.1'
+
+      # 3. Thêm Repo Bitnami (Giả lập môi trường công ty)
+      # Để có cái Chart gốc mà so sánh
+      - name: Add Helm Repo
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+
+      # 4. VÒNG LẶP KIỂM TRA (SCRIPT THẦN THÁNH)
+      # Script này sẽ quét tất cả thư mục trong apps-config
+      # Và thử "nháp" (template) xem có lỗi không
+      - name: Lint All Apps
+        run: |
+          echo "Bắt đầu kiểm tra cú pháp..."
+          has_error=0
+
+          # Lặp qua từng thư mục con trong apps-config (user-service, payment-service...)
+          for dir in apps-config/*/; do
+            app_name=$(basename "$dir")
+            echo "---------------------------------"
+            echo "🔍 Đang kiểm tra App: $app_name"
+            
+            # Lệnh quan trọng nhất: Helm Template
+            # Nó thử trộn values.yaml vào Chart gốc xem có nổ không
+            # --debug để xem lỗi chi tiết nếu có
+            if helm template test-release bitnami/nginx --version 15.1.2 -f "$dir/values.yaml" > /dev/null; then
+              echo "✅ $app_name: HỢP LỆ (OK)"
+            else
+              echo "❌ $app_name: LỖI CÚ PHÁP (FAILED)"
+              has_error=1
+            fi
+          done
+
+          echo "---------------------------------"
+          # Nếu có bất kỳ app nào lỗi, đánh sập Pipeline luôn
+          if [ $has_error -ne 0 ]; then
+            echo "🚨 PHÁT HIỆN LỖI! Dừng quy trình."
+            exit 1
+          else
+            echo "🎉 TẤT CẢ ĐỀU NGON LÀNH!"
+            exit 0
+          fi
