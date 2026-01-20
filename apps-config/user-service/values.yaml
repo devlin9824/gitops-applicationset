@@ -1,0 +1,13 @@
+# apps-config/user-service/values.yaml
+image:
+  registry: docker.io
+  repository: nginx
+  tag: "alpine" # Dùng bản nhẹ hơn để khác biệt
+
+service:
+  type: ClusterIP
+  port: 8080    # Cổng khác để test
+
+extraEnvVars:
+  - name: APP_NAME
+    value: "Day la User Service"
