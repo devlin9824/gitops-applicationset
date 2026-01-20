@@ -1,24 +1,27 @@
-# 1. Dùng ảnh Nginx không cần quyền root (Mặc định chạy port 8080)
+# --- CẤU HÌNH CHO USER SERVICE ---
 image:
   registry: docker.io
   repository: nginxinc/nginx-unprivileged
   tag: alpine
 
-# 2. Khai báo cổng khớp với ảnh
 containerPorts:
   http: 8080
 
-# 3. Cấu hình Service mở cổng 8080
 service:
   type: ClusterIP
   port: 8080
-  targetPort: 8080
+  # QUAN TRỌNG: Cấu trúc map để tránh lỗi template
+  targetPort:
+    http: 8080
+    https: 443
 
-# 4. Tắt tính năng Auth thừa thãi của Chart mẫu
 auth:
   enabled: false
+prometheus:
+  exporter:
+    enabled: false
 
-# 5. Biến môi trường để phân biệt App
+# KHÁC BIỆT Ở ĐÂY: Đặt tên để biết đây là User
 extraEnvVars:
   - name: APP_NAME
     value: "Day la User Service"

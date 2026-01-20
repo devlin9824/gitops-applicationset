@@ -1,23 +1,29 @@
-# 1. Dùng ảnh tương tự (Vì chúng ta đang dùng chung 1 Chart mẫu)
+# apps-config/payment-service/values.yaml
+
 image:
   registry: docker.io
+  # Dùng ảnh unprivileged để chạy được mọi nơi (tránh lỗi 403 Docker Hub)
   repository: nginxinc/nginx-unprivileged
   tag: alpine
 
-# 2. Khai báo cổng
+# 1. Khai báo cổng cho Container (Quan trọng)
 containerPorts:
   http: 8080
 
-# 3. Service
+# 2. Cấu hình Service
 service:
   type: ClusterIP
   port: 8080
-  targetPort: 8080
+  
+  # 3. ĐÂY LÀ CHỖ SỬA LỖI:
+  # Phải viết targetPort dưới dạng danh sách (Map) để khớp với Chart gốc
+  targetPort:
+    http: 8080
+    https: 443
 
+# Tắt tính năng thừa
 auth:
   enabled: false
-
-# 4. Đặt tên khác đi để test
-extraEnvVars:
-  - name: APP_NAME
-    value: "Day la Payment Service - Tien ve nhu nuoc"
+prometheus:
+  exporter:
+    enabled: false
