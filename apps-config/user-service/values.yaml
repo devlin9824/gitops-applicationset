@@ -1,10 +1,14 @@
-# Cấu hình tối giản nhất cho Bitnami Nginx
+# SỬA LẠI: Dùng đúng Image của Bitnami để khớp với Chart
 image:
   registry: docker.io
-  repository: nginx
-  tag: alpine
+  repository: bitnami/nginx
+  tag: "1.25"
 
-# Quan trọng: Bitnami mặc định chạy non-root port 8080
+# Cấu hình Service
 service:
   type: ClusterIP
   port: 8080
+
+# (Tùy chọn) Tắt bớt mấy cái lằng nhằng của Bitnami để chạy nhẹ hơn
+auth:
+  enabled: false
