@@ -1,0 +1,14 @@
+# Dev chỉ cần khai báo thế này thôi
+image:
+  registry: docker.io
+  repository: nginx
+  tag: "1.23"
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Tùy chỉnh dòng chào mừng (để chứng minh nó nhận config riêng)
+extraEnvVars:
+  - name: MY_APP_NAME
+    value: "Day la Payment Service"
