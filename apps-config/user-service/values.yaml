@@ -24,4 +24,4 @@ prometheus:
 # KHÁC BIỆT Ở ĐÂY: Đặt tên để biết đây là User
 extraEnvVars:
   - name: APP_NAME
-    value: "Day la User Service"
+    value: "This is User Service"
