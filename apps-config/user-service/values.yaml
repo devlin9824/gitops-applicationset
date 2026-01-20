@@ -1,13 +1,10 @@
-# apps-config/user-service/values.yaml
+# Cấu hình tối giản nhất cho Bitnami Nginx
 image:
   registry: docker.io
   repository: nginx
-  tag: "alpine" # Dùng bản nhẹ hơn để khác biệt
+  tag: alpine
 
+# Quan trọng: Bitnami mặc định chạy non-root port 8080
 service:
   type: ClusterIP
-  port: 8080    # Cổng khác để test
-
-extraEnvVars:
-  - name: APP_NAME
-    value: "Day la User Service"
+  port: 8080
