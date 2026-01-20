@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Values",
+  "type": "object",
+  "required": ["image"],
+  "properties": {
+    "image": {
+      "type": "object",
+      "required": ["repository", "tag"],
+      "properties": {
+        "repository": { "type": "string" },
+        "tag": { "type": "string" }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "port": { "type": "integer" }
+      }
+    }
+  }
+}
