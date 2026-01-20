@@ -1,14 +1,24 @@
-# SỬA LẠI ĐOẠN NÀY
+# 1. Dùng ảnh Nginx không cần quyền root (Mặc định chạy port 8080)
 image:
   registry: docker.io
-  repository: bitnami/nginx  # <--- Dùng ảnh của Bitnami, đừng dùng 'nginx' thường
-  tag: "1.25"
+  repository: nginxinc/nginx-unprivileged
+  tag: alpine
 
-# Giữ nguyên cấu hình port này để khớp với Chart
+# 2. Khai báo cổng khớp với ảnh
+containerPorts:
+  http: 8080
+
+# 3. Cấu hình Service mở cổng 8080
 service:
   type: ClusterIP
   port: 8080
+  targetPort: 8080
 
-# Tắt bớt tính năng thừa
+# 4. Tắt tính năng Auth thừa thãi của Chart mẫu
 auth:
   enabled: false
+
+# 5. Biến môi trường để phân biệt App
+extraEnvVars:
+  - name: APP_NAME
+    value: "Day la User Service"

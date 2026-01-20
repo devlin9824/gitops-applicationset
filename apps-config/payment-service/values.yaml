@@ -1,14 +1,23 @@
-# Dev chỉ cần khai báo thế này thôi
+# 1. Dùng ảnh tương tự (Vì chúng ta đang dùng chung 1 Chart mẫu)
 image:
   registry: docker.io
-  repository: nginx
-  tag: "1.23"
+  repository: nginxinc/nginx-unprivileged
+  tag: alpine
 
+# 2. Khai báo cổng
+containerPorts:
+  http: 8080
+
+# 3. Service
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
+  targetPort: 8080
 
-# Tùy chỉnh dòng chào mừng (để chứng minh nó nhận config riêng)
+auth:
+  enabled: false
+
+# 4. Đặt tên khác đi để test
 extraEnvVars:
-  - name: MY_APP_NAME
-    value: "Day la Payment Service"
+  - name: APP_NAME
+    value: "Day la Payment Service - Tien ve nhu nuoc"
