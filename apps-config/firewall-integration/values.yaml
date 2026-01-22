@@ -1,0 +1,32 @@
+# apps-config/firewall-integration/values.yaml
+
+image:
+  registry: docker.io
+  repository: d4vlin/firewall-service
+  tag: "20260121-091410"
+
+containerPorts:
+  http: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort:
+    http: 8080
+
+# App env (tuỳ chart của bạn hỗ trợ env trực tiếp hay envFrom secret)
+env:
+  LOG_LEVEL: "info"
+  ADMIN_ENABLED: "false"   # public instance: không bật admin router
+
+# Gateway API (tạo HTTPRoute)
+gatewayApi:
+  enabled: true
+  gatewayName: traefik-gateway
+  gatewayNamespace: traefik
+  hostnames:
+    - api.uat.local
+  rules:
+    - pathPrefix: /
+      serviceName: firewall-integration
+      servicePort: 8080
