@@ -3,7 +3,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "v2-fix-admin"
+  tag: "test-20260123-145125"
 
 containerPorts:
   http: 8080
