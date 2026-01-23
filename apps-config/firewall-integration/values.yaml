@@ -28,7 +28,7 @@ extraEnv:
     valueFrom:
       secretKeyRef:
         name: firewall-integration-env
-        key: test
+        key: API_KEY_PEPPER
 # Gateway API (tạo HTTPRoute)
 gatewayApi:
   enabled: true
