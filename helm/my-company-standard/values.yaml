@@ -1,0 +1,27 @@
+# Default values for my-company-standard.
+
+image:
+  registry: docker.io
+  repository: nginx
+  tag: latest
+
+containerPorts:
+  http: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort:
+    http: 80
+
+# QUAN TRỌNG: Định nghĩa sẵn gatewayApi để không bị Nil Pointer
+gatewayApi:
+  enabled: false
+  gatewayName: ""
+  gatewayNamespace: ""
+  hostnames: []
+  rules: []
+
+# Định nghĩa sẵn env/extraEnv rỗng
+env: {}
+extraEnv: []
