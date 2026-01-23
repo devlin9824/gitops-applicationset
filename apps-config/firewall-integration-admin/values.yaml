@@ -1,0 +1,38 @@
+image:
+  registry: docker.io
+  repository: d4vlin/firewall-service
+  tag: "test-20260123-145125"
+
+containerPorts:
+  http: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort:
+    http: 8080
+
+env:
+  LOG_LEVEL: "info"
+  ADMIN_ENABLED: "true"
+
+extraEnv:
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-admin-env
+        key: DATABASE_URL
+  - name: API_KEY_PEPPER
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-admin-env
+        key: API_KEY_PEPPER
+  - name: ADMIN_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-admin-env
+        key: ADMIN_API_KEY
+
+# QUAN TRỌNG: admin instance KHÔNG public
+gatewayApi:
+  enabled: false
