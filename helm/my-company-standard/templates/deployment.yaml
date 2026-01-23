@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.containerPorts.http }}
+              name: http
+          env:
+            # 1. Hỗ trợ cách khai báo env cũ (key: value) trong values.yaml của bạn
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            
+            # 2. Hỗ trợ khai báo extraEnv (để nhúng Secret) - ĐÂY LÀ PHẦN QUAN TRỌNG
+            {{- if .Values.extraEnv }}
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+            {{- end }}

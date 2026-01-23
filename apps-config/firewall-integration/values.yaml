@@ -18,7 +18,12 @@ service:
 env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "false"   # public instance: không bật admin router
-
+extraEnv:
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-env
+        key: DATABASE_URL
 # Gateway API (tạo HTTPRoute)
 gatewayApi:
   enabled: true
