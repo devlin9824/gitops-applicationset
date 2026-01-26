@@ -1,7 +1,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "test-v1"
+  tag: "test-v2-fix-middleware"
 
 containerPorts:
   http: 8080
