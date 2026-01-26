@@ -3,7 +3,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "test-v2-fix-middleware"
+  tag: "test-v3-fix-http-exception"
 
 containerPorts:
   http: 8080
