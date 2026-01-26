@@ -1,0 +1,11 @@
+{{- if and .Values.gatewayApi .Values.gatewayApi.enabled .Values.gatewayApi.redirectToHttps }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-redirect-to-https
+  namespace: {{ .Release.Namespace }}
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}

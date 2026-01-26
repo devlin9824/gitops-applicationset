@@ -8,16 +8,19 @@ image:
 containerPorts:
   http: 8080
 
+replicaCount: 2  # prod public nên >=2
+
 service:
   type: ClusterIP
   port: 8080
   targetPort:
     http: 8080
 
-# App env (tuỳ chart của bạn hỗ trợ env trực tiếp hay envFrom secret)
+# App env
 env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "false"   # public instance: không bật admin router
+
 extraEnv:
   - name: DATABASE_URL
     valueFrom:
@@ -29,13 +32,37 @@ extraEnv:
       secretKeyRef:
         name: firewall-integration-env
         key: API_KEY_PEPPER
+
+# Optional: pod labels (public thường để trống)
+podLabels: {}
+
+# K8s hardening (prod)
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
 # Gateway API (tạo HTTPRoute)
 gatewayApi:
   enabled: true
   gatewayName: traefik-gateway
   gatewayNamespace: traefik
+
+  # IMPORTANT: gateway của bạn có listeners:
+  # - web (HTTP)  port 8000
+  # - websecure (HTTPS) port 8443
+  httpsSectionName: websecure
+  httpSectionName: web
+
+  # Production: nên redirect HTTP -> HTTPS
+  redirectToHttps: true
+
   hostnames:
-    - api.uat.local
+    - api.uat.local  # TODO: đổi thành domain thật khi prod (vd: api.example.com)
+
   rules:
     - pathPrefix: /
       serviceName: firewall-integration

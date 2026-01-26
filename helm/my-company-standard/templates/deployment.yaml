@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -13,22 +13,53 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
     spec:
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
+
           ports:
             - containerPort: {{ .Values.containerPorts.http }}
               name: http
+
+          # Security hardening (distroless + nonroot)
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+          # Probes
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+          resources:
+            {{- toYaml (.Values.resources | default dict) | nindent 12 }}
+
           env:
-            # 1. Hỗ trợ cách khai báo env cũ (key: value) trong values.yaml của bạn
+            # 1) env dạng key: value
             {{- range $key, $val := .Values.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
-            
-            # 2. Hỗ trợ khai báo extraEnv (để nhúng Secret) - ĐÂY LÀ PHẦN QUAN TRỌNG
+
+            # 2) extraEnv (nhúng Secret)
             {{- if .Values.extraEnv }}
             {{- toYaml .Values.extraEnv | nindent 12 }}
             {{- end }}

@@ -1,4 +1,8 @@
 {{- if and .Values.gatewayApi .Values.gatewayApi.enabled }}
+
+# --------------------------
+# HTTPS route (listener: websecure)
+# --------------------------
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -8,12 +12,15 @@ spec:
   parentRefs:
     - name: {{ .Values.gatewayApi.gatewayName }}
       namespace: {{ .Values.gatewayApi.gatewayNamespace }}
+      {{- if .Values.gatewayApi.httpsSectionName }}
+      sectionName: {{ .Values.gatewayApi.httpsSectionName | quote }}
+      {{- end }}
   hostnames:
-{{- range .Values.gatewayApi.hostnames }}
+  {{- range .Values.gatewayApi.hostnames }}
     - {{ . | quote }}
-{{- end }}
+  {{- end }}
   rules:
-{{- range .Values.gatewayApi.rules }}
+  {{- range .Values.gatewayApi.rules }}
     - matches:
         - path:
             type: PathPrefix
@@ -21,5 +28,46 @@ spec:
       backendRefs:
         - name: {{ .serviceName }}
           port: {{ .servicePort }}
+  {{- end }}
+
+---
+{{- if .Values.gatewayApi.redirectToHttps }}
+
+# --------------------------
+# HTTP route (listener: web) -> redirect to HTTPS via Traefik Middleware
+# --------------------------
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Release.Name }}-http-redirect
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gatewayApi.gatewayName }}
+      namespace: {{ .Values.gatewayApi.gatewayNamespace }}
+      {{- if .Values.gatewayApi.httpSectionName }}
+      sectionName: {{ .Values.gatewayApi.httpSectionName | quote }}
+      {{- end }}
+  hostnames:
+  {{- range .Values.gatewayApi.hostnames }}
+    - {{ . | quote }}
+  {{- end }}
+  rules:
+  {{- range .Values.gatewayApi.rules }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ .pathPrefix | quote }}
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: {{ $.Release.Name }}-redirect-to-https
+      backendRefs:
+        - name: {{ .serviceName }}
+          port: {{ .servicePort }}
+  {{- end }}
+
 {{- end }}
 {{- end }}
