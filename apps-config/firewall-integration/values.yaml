@@ -3,7 +3,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "test-20260123-145125"
+  tag: "test-20260126-085502-fix-greenlet"
 
 containerPorts:
   http: 8080
