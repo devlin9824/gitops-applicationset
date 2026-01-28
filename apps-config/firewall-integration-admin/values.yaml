@@ -22,7 +22,7 @@ env:
 
   # PRODUCTION: sau khi bạn tạo "DB-backed admin key" (POST /admin/api-keys)
   # thì để FALSE và (khuyến nghị) bỏ ADMIN_API_KEY khỏi secret.
-  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
+  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "true"
 
 extraEnv:
   - name: DATABASE_URL
