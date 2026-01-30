@@ -3,7 +3,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "test-v4-libstdcpp"
+  tag: "uat-20260130-114142"
 
 containerPorts:
   http: 8080
