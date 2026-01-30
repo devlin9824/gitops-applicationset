@@ -60,12 +60,13 @@ extraEnv:
       secretKeyRef:
         name: firewall-integration-admin-env
         key: VT_API_KEY
+        optional: true
   - name: ABUSEIPDB_API_KEY
     valueFrom:
       secretKeyRef:
         name: firewall-integration-admin-env
         key: ABUSEIPDB_API_KEY
-
+        optional: true
 gatewayApi:
   enabled: false
 
