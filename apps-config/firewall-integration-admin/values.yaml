@@ -1,5 +1,3 @@
-# apps-config/firewall-integration-admin/values.yaml
-
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
@@ -8,7 +6,7 @@ image:
 containerPorts:
   http: 8080
 
-replicaCount: 1  # admin thường 1 replica cũng được (tuỳ nhu cầu)
+replicaCount: 1
 
 service:
   type: ClusterIP
@@ -20,9 +18,22 @@ env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "true"
 
-  # PRODUCTION: sau khi bạn tạo "DB-backed admin key" (POST /admin/api-keys)
-  # thì để FALSE và (khuyến nghị) bỏ ADMIN_API_KEY khỏi secret.
+  # Bootstrap (chỉ bật tạm lúc tạo admin key lần đầu)
   ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
+
+  # TI scheduler: bật ở admin (replica=1) để không bị chạy trùng
+  TI_ENABLED: "true"
+  TI_DAILY_RECHECK_ENABLED: "true"
+  TI_DAILY_RECHECK_HOUR: "2"
+  TI_DAILY_RECHECK_MINUTE: "0"
+  TI_MAX_ITEMS_PER_RUN: "500"
+  TI_CONCURRENCY: "10"
+  VT_MALICIOUS_ENGINES: "1"
+  ABUSEIPDB_MALICIOUS_SCORE: "50"
+
+  # Optional
+  METRICS_ENABLED: "false"
+  TRACING_ENABLED: "false"
 
 extraEnv:
   - name: DATABASE_URL
@@ -36,18 +47,28 @@ extraEnv:
         name: firewall-integration-admin-env
         key: API_KEY_PEPPER
 
-  # BOOTSTRAP KEY (chỉ dùng 1 lần để tạo key DB-backed rồi tắt)
+  # BOOTSTRAP KEY (dùng 1 lần; tạo xong admin DB key thì để ALLOW_BOOTSTRAP...=false và cân nhắc xoá ADMIN_API_KEY khỏi secret)
   - name: ADMIN_API_KEY
     valueFrom:
       secretKeyRef:
         name: firewall-integration-admin-env
         key: ADMIN_API_KEY
 
-# QUAN TRỌNG: admin instance KHÔNG public
+  # Threat Intel provider keys
+  - name: VT_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-admin-env
+        key: VT_API_KEY
+  - name: ABUSEIPDB_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: firewall-integration-admin-env
+        key: ABUSEIPDB_API_KEY
+
 gatewayApi:
   enabled: false
 
-# ĐỂ KHỚP service selector hiện tại: app=firewall-integration-admin,role=admin
 podLabels:
   role: admin
 

@@ -1,5 +1,3 @@
-# apps-config/firewall-integration/values.yaml
-
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
@@ -8,7 +6,7 @@ image:
 containerPorts:
   http: 8080
 
-replicaCount: 2  # prod public nên >=2
+replicaCount: 2
 
 service:
   type: ClusterIP
@@ -16,10 +14,17 @@ service:
   targetPort:
     http: 8080
 
-# App env
 env:
   LOG_LEVEL: "info"
-  ADMIN_ENABLED: "false"   # public instance: không bật admin router
+  ADMIN_ENABLED: "false"
+
+  # TI: public replica=2 -> tắt để tránh chạy job trùng
+  TI_ENABLED: "false"
+  TI_DAILY_RECHECK_ENABLED: "false"
+
+  # Optional
+  METRICS_ENABLED: "false"
+  TRACING_ENABLED: "false"
 
 extraEnv:
   - name: DATABASE_URL
@@ -33,10 +38,8 @@ extraEnv:
         name: firewall-integration-env
         key: API_KEY_PEPPER
 
-# Optional: pod labels (public thường để trống)
 podLabels: {}
 
-# K8s hardening (prod)
 resources:
   requests:
     cpu: 100m
@@ -45,23 +48,17 @@ resources:
     cpu: 500m
     memory: 512Mi
 
-# Gateway API (tạo HTTPRoute)
 gatewayApi:
   enabled: true
   gatewayName: traefik-gateway
   gatewayNamespace: traefik
 
-  # IMPORTANT: gateway của bạn có listeners:
-  # - web (HTTP)  port 8000
-  # - websecure (HTTPS) port 8443
   httpsSectionName: websecure
   httpSectionName: web
-
-  # Production: nên redirect HTTP -> HTTPS
   redirectToHttps: true
 
   hostnames:
-    - api.uat.local  # TODO: đổi thành domain thật khi prod (vd: api.example.com)
+    - api.uat.local
 
   rules:
     - pathPrefix: /
