@@ -2,8 +2,8 @@
 
 image:
   registry: docker.io
-  repository: nginx
-  tag: latest
+  repository: nginxinc/nginx-unprivileged
+  tag: "stable-alpine"
 
 containerPorts:
   http: 80
