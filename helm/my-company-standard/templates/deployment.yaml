@@ -33,10 +33,15 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          
+          # --- THÊM PHẦN NÀY ĐỂ SỬA LỖI READ-ONLY ---
+          # Nginx cần ghi file tạm (pid, cache, logs) vào /tmp
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+          # ------------------------------------------
 
           # Probes
-          # - Liveness: process sống => /health
-          # - Readiness: phụ thuộc DB OK => /ready
           readinessProbe:
             httpGet:
               path: /ready
@@ -69,3 +74,9 @@ spec:
             {{- if .Values.extraEnv }}
             {{- toYaml .Values.extraEnv | nindent 12 }}
             {{- end }}
+
+      # --- THÊM PHẦN NÀY (CÙNG CẤP VỚI containers) ---
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      # -----------------------------------------------
