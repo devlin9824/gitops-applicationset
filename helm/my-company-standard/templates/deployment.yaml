@@ -33,18 +33,18 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
-          
-          # --- THÊM PHẦN NÀY ĐỂ SỬA LỖI READ-ONLY ---
-          # Nginx cần ghi file tạm (pid, cache, logs) vào /tmp
+
+          # --- FIX 1: CHO PHÉP NGINX GHI LOG/CACHE ---
           volumeMounts:
             - name: tmp-volume
               mountPath: /tmp
-          # ------------------------------------------
+          # -------------------------------------------
 
-          # Probes
+          # --- FIX 2: SỬA PROBE VỀ TRANG CHỦ (/) ---
+          # Vì Nginx mặc định không có /health hay /ready
           readinessProbe:
             httpGet:
-              path: /ready
+              path: /
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -53,30 +53,29 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: /health
+              path: /
               port: http
             initialDelaySeconds: 15
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 3
+          # -----------------------------------------
 
           resources:
             {{- toYaml (.Values.resources | default dict) | nindent 12 }}
 
           env:
-            # 1) env dạng key: value
             {{- range $key, $val := .Values.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
 
-            # 2) extraEnv (nhúng Secret)
             {{- if .Values.extraEnv }}
             {{- toYaml .Values.extraEnv | nindent 12 }}
             {{- end }}
 
-      # --- THÊM PHẦN NÀY (CÙNG CẤP VỚI containers) ---
+      # --- FIX 1: KHAI BÁO VOLUME ---
       volumes:
         - name: tmp-volume
           emptyDir: {}
-      # -----------------------------------------------
+      # ------------------------------

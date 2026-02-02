@@ -6,13 +6,13 @@ image:
   tag: "stable-alpine"
 
 containerPorts:
-  http: 80
+  http: 8080
 
 service:
   type: ClusterIP
   port: 80
   targetPort:
-    http: 80
+    http: 8080
 
 # QUAN TRỌNG: Định nghĩa sẵn gatewayApi để không bị Nil Pointer
 gatewayApi:
