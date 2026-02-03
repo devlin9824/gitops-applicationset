@@ -1,7 +1,7 @@
 image:
   registry: docker.io
   repository: d4vlin/firewall-service
-  tag: "uat-20260203-135416"
+  tag: "uat-20260203-074339"
 
 containerPorts:
   http: 8080
@@ -19,8 +19,8 @@ env:
   ADMIN_ENABLED: "false"
 
   # TI: public replica=2 -> tắt để tránh chạy job trùng
-  TI_ENABLED: "true"
-  TI_DAILY_RECHECK_ENABLED: "true"
+  TI_ENABLED: "false"
+  TI_DAILY_RECHECK_ENABLED: "false"
 
   # Optional
   METRICS_ENABLED: "false"
