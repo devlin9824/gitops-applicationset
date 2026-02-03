@@ -19,8 +19,8 @@ env:
   ADMIN_ENABLED: "false"
 
   # TI: public replica=2 -> tắt để tránh chạy job trùng
-  TI_ENABLED: "false"
-  TI_DAILY_RECHECK_ENABLED: "false"
+  TI_ENABLED: "true"
+  TI_DAILY_RECHECK_ENABLED: "true"
 
   # Optional
   METRICS_ENABLED: "false"
