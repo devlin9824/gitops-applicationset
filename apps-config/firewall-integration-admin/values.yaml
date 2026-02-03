@@ -19,7 +19,7 @@ env:
   ADMIN_ENABLED: "true"
 
   # Bootstrap (chỉ bật tạm lúc tạo admin key lần đầu)
-  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
+  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "true"
 
   # TI scheduler: bật ở admin (replica=1) để không bị chạy trùng
   TI_ENABLED: "true"
