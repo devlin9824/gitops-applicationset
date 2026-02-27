@@ -22,6 +22,10 @@ env:
   TI_ENABLED: "false"
   TI_DAILY_RECHECK_ENABLED: "false"
 
+  # Performance & Audit (Theo khuyến nghị)
+  AUDIT_ENABLED: "false"
+  LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
+
   # Optional
   METRICS_ENABLED: "false"
   TRACING_ENABLED: "false"
@@ -37,6 +41,19 @@ extraEnv:
       secretKeyRef:
         name: firewall-integration-env
         key: API_KEY_PEPPER
+
+# Security Context chuẩn Kyverno & Best Practice
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true # Đã an toàn vì Chart có mount /tmp
 
 podLabels: {}
 
@@ -62,5 +79,5 @@ gatewayApi:
 
   rules:
     - pathPrefix: /
-      serviceName: firewall-integration
+      serviceName: firewall-integration # NHỚ CHECK LẠI TÊN SERVICE SAU KHI SYNC
       servicePort: 8080
