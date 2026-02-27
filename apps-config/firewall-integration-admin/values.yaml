@@ -18,26 +18,10 @@ env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "true"
 
-  # Bootstrap: Bật "true" nếu DB UAT mới tinh chưa có key. Set lại "false" sau khi tạo xong.
-  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "true" 
+  # CHỈ bật khi DB mới tinh cần bootstrap key, xong thì tắt
+  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
 
-  # TI scheduler: bật ở admin (replica=1)
-  TI_ENABLED: "true"
-  TI_DAILY_RECHECK_ENABLED: "true"
-  TI_DAILY_RECHECK_HOUR: "2"
-  TI_DAILY_RECHECK_MINUTE: "0"
-  TI_MAX_ITEMS_PER_RUN: "500"
-  TI_CONCURRENCY: "10"
-  VT_MALICIOUS_ENGINES: "1"
-  ABUSEIPDB_MALICIOUS_SCORE: "50"
-
-  # Performance & Audit (Bật Audit nếu muốn vết tích kỹ hơn ở Admin)
-  AUDIT_ENABLED: "false" 
   LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
-
-  # Optional
-  METRICS_ENABLED: "false"
-  TRACING_ENABLED: "false"
 
 extraEnv:
   - name: DATABASE_URL
@@ -51,31 +35,17 @@ extraEnv:
         name: firewall-integration-admin-env
         key: API_KEY_PEPPER
 
-  # BOOTSTRAP KEY
+  # bootstrap key (chỉ cần khi ALLOW_BOOTSTRAP_ADMIN_API_KEY=true)
   - name: ADMIN_API_KEY
     valueFrom:
       secretKeyRef:
         name: firewall-integration-admin-env
         key: ADMIN_API_KEY
-
-  # Threat Intel provider keys (Đổi thành bắt buộc - fail fast nếu thiếu key)
-  - name: VT_API_KEY
-    valueFrom:
-      secretKeyRef:
-        name: firewall-integration-admin-env
-        key: VT_API_KEY
-        optional: false 
-  - name: ABUSEIPDB_API_KEY
-    valueFrom:
-      secretKeyRef:
-        name: firewall-integration-admin-env
-        key: ABUSEIPDB_API_KEY
-        optional: false
+        optional: true
 
 gatewayApi:
   enabled: false
 
-# Security Context chuẩn Kyverno & Best Practice (Đồng bộ với App)
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
@@ -84,9 +54,8 @@ podSecurityContext:
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
-    drop:
-    - ALL
-  readOnlyRootFilesystem: true 
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
 
 podLabels:
   role: admin

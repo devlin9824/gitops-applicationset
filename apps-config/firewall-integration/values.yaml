@@ -18,17 +18,8 @@ env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "false"
 
-  # TI: public replica=2 -> tắt để tránh chạy job trùng
-  TI_ENABLED: "false"
-  TI_DAILY_RECHECK_ENABLED: "false"
-
-  # Performance & Audit (Theo khuyến nghị)
-  AUDIT_ENABLED: "false"
+  # giảm DB write amplification cho last_used
   LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
-
-  # Optional
-  METRICS_ENABLED: "false"
-  TRACING_ENABLED: "false"
 
 extraEnv:
   - name: DATABASE_URL
@@ -42,7 +33,6 @@ extraEnv:
         name: firewall-integration-env
         key: API_KEY_PEPPER
 
-# Security Context chuẩn Kyverno & Best Practice
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
@@ -51,11 +41,8 @@ podSecurityContext:
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
-    drop:
-    - ALL
-  readOnlyRootFilesystem: true # Đã an toàn vì Chart có mount /tmp
-
-podLabels: {}
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
 
 resources:
   requests:
@@ -69,15 +56,12 @@ gatewayApi:
   enabled: true
   gatewayName: traefik-gateway
   gatewayNamespace: traefik
-
   httpsSectionName: websecure
   httpSectionName: web
   redirectToHttps: true
-
   hostnames:
     - api.uat.local
-
   rules:
     - pathPrefix: /
-      serviceName: firewall-integration # NHỚ CHECK LẠI TÊN SERVICE SAU KHI SYNC
+      serviceName: firewall-integration
       servicePort: 8080
