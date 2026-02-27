@@ -17,8 +17,7 @@ service:
 env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "false"
-
-  # giảm DB write amplification cho last_used
+  DB_POOL_ENABLED: "true"
   LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
 
 extraEnv:
@@ -32,6 +31,9 @@ extraEnv:
       secretKeyRef:
         name: firewall-integration-env
         key: API_KEY_PEPPER
+
+podLabels:
+  role: public
 
 podSecurityContext:
   runAsNonRoot: true

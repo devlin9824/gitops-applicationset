@@ -17,10 +17,8 @@ service:
 env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "true"
-
-  # CHỈ bật khi DB mới tinh cần bootstrap key, xong thì tắt
+  DB_POOL_ENABLED: "true"
   ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
-
   LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
 
 extraEnv:
@@ -34,8 +32,6 @@ extraEnv:
       secretKeyRef:
         name: firewall-integration-admin-env
         key: API_KEY_PEPPER
-
-  # bootstrap key (chỉ cần khi ALLOW_BOOTSTRAP_ADMIN_API_KEY=true)
   - name: ADMIN_API_KEY
     valueFrom:
       secretKeyRef:
@@ -45,6 +41,9 @@ extraEnv:
 
 gatewayApi:
   enabled: false
+
+podLabels:
+  role: admin
 
 podSecurityContext:
   runAsNonRoot: true
@@ -56,9 +55,6 @@ securityContext:
   capabilities:
     drop: ["ALL"]
   readOnlyRootFilesystem: true
-
-podLabels:
-  role: admin
 
 resources:
   requests:
