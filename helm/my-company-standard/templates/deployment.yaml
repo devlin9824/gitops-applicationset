@@ -6,9 +6,15 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 3 }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable | default "25%" }}
+      maxSurge: {{ .Values.rollingUpdate.maxSurge | default "25%" }}
   template:
     metadata:
       labels:
@@ -17,49 +23,44 @@ spec:
         {{- toYaml .Values.podLabels | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
+
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
 
           ports:
             - containerPort: {{ .Values.containerPorts.http }}
               name: http
 
-          # Security hardening (distroless + nonroot)
+          {{- if .Values.securityContext }}
           securityContext:
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: ["ALL"]
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
 
-          # --- FIX 1: CHO PHÉP NGINX GHI LOG/CACHE ---
-          volumeMounts:
-            - name: tmp-volume
-              mountPath: /tmp
-          # -------------------------------------------
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
 
-          # --- FIX 2: SỬA PROBE VỀ TRANG CHỦ (/) ---
-          # Vì Nginx mặc định không có /health hay /ready
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
 
+          {{- if .Values.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 2
-            failureThreshold: 3
-          # -----------------------------------------
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
 
           resources:
             {{- toYaml (.Values.resources | default dict) | nindent 12 }}
@@ -69,13 +70,16 @@ spec:
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
-
             {{- if .Values.extraEnv }}
             {{- toYaml .Values.extraEnv | nindent 12 }}
             {{- end }}
 
-      # --- FIX 1: KHAI BÁO VOLUME ---
+          {{- if .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
+
+      {{- if .Values.volumes }}
       volumes:
-        - name: tmp-volume
-          emptyDir: {}
-      # ------------------------------
+        {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}

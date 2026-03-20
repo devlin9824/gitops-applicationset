@@ -1,12 +1,14 @@
 image:
   registry: docker.io
-  repository: d4vlin/firewall-service
-  tag: "uat-20260302-112814"
+  repository: d4vlin/firewall-integration-service
+  tag: "trial-20260320-1"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+revisionHistoryLimit: 3
 
 containerPorts:
   http: 8080
-
-replicaCount: 1
 
 service:
   type: ClusterIP
@@ -17,8 +19,10 @@ service:
 env:
   LOG_LEVEL: "info"
   ADMIN_ENABLED: "true"
+  DOCS_ENABLED: "true"
+  AUDIT_ENABLED: "true"
   DB_POOL_ENABLED: "true"
-  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "false"
+  ALLOW_BOOTSTRAP_ADMIN_API_KEY: "true"
   LAST_USED_UPDATE_MIN_INTERVAL_SECONDS: "900"
 
 extraEnv:
@@ -39,9 +43,6 @@ extraEnv:
         key: ADMIN_API_KEY
         optional: true
 
-gatewayApi:
-  enabled: false
-
 podLabels:
   role: admin
 
@@ -49,12 +50,43 @@ podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
   fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop: ["ALL"]
   readOnlyRootFilesystem: true
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  failureThreshold: 30
+  periodSeconds: 5
+  timeoutSeconds: 2
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+imagePullSecrets:
+  - name: dockerhub-regcred
 
 resources:
   requests:
@@ -63,3 +95,6 @@ resources:
   limits:
     cpu: 300m
     memory: 512Mi
+
+gatewayApi:
+  enabled: false

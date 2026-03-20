@@ -1,27 +1,50 @@
-# Default values for my-company-standard.
-
 image:
   registry: docker.io
   repository: nginxinc/nginx-unprivileged
   tag: "stable-alpine"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+revisionHistoryLimit: 3
+
+rollingUpdate:
+  maxUnavailable: 25%
+  maxSurge: 25%
 
 containerPorts:
   http: 8080
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
   targetPort:
     http: 8080
 
-# QUAN TRỌNG: Định nghĩa sẵn gatewayApi để không bị Nil Pointer
 gatewayApi:
   enabled: false
   gatewayName: ""
   gatewayNamespace: ""
+  httpsSectionName: ""
+  httpSectionName: ""
+  redirectToHttps: false
   hostnames: []
   rules: []
 
-# Định nghĩa sẵn env/extraEnv rỗng
 env: {}
 extraEnv: []
+
+imagePullSecrets: []
+
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+startupProbe: {}
+readinessProbe: {}
+livenessProbe: {}
+
+resources: {}
+
+volumes: []
+volumeMounts: []
